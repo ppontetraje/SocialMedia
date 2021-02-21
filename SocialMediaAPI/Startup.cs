@@ -2,6 +2,7 @@ using AutoMapper;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +11,10 @@ using SocialMedia.Core.Data;
 using SocialMedia.Core.Interfaces;
 using SocialMedia.Core.Services;
 using SocialMedia.Infraestructure.Filters;
+using SocialMedia.Infraestructure.Interfaces;
+using SocialMedia.Core.CustomEntities;
 using SocialMedia.Infraestructure.Repositories;
+using SocialMedia.Infraestructure.Services;
 using System;
 
 namespace SocialMediaAPI
@@ -29,18 +33,21 @@ namespace SocialMediaAPI
         {
             //este paquete busca en la solucion los profiles(Mappings) que se hicieron
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            //Se muestra en Postman el json que se envia en el post, ya nos e ve el mensaje de error
+            //Se muestra en Postman el json que se envia en el post, ya nose ve el mensaje de error
             services.AddControllers(options => 
             {
                 options.Filters.Add<GlobalExceptionFilter>();
             }).AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
             })
             .ConfigureApiBehaviorOptions(options =>
              {
                  //options.SuppressModelStateInvalidFilter = true;
              });
+
+            services.Configure<PaginationOptions>(Configuration.GetSection("Pagination"));
 
             services.AddDbContext<SocialMediaContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("SocialMedia"))
@@ -55,6 +62,15 @@ namespace SocialMediaAPI
             services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
             services.AddTransient<IUnitOfWork, UnitOfWork>();
 
+            //Se maneja una unica instancia en toda la app
+            services.AddSingleton<IUriService>(provider =>
+            {
+                var accesor = provider.GetRequiredService<IHttpContextAccessor>();
+                var request = accesor.HttpContext.Request;
+                var absoluteUri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
+                return new UriService(absoluteUri);
+            });
+            
             //Es un filtro ... valida los modelos de manera global en la app... para cada request
             services.AddMvc(options =>
             {
