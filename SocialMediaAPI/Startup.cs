@@ -16,6 +16,9 @@ using SocialMedia.Core.CustomEntities;
 using SocialMedia.Infraestructure.Repositories;
 using SocialMedia.Infraestructure.Services;
 using System;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
+using System.IO;
 
 namespace SocialMediaAPI
 {
@@ -70,6 +73,15 @@ namespace SocialMediaAPI
                 var absoluteUri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
                 return new UriService(absoluteUri);
             });
+
+            services.AddSwaggerGen(doc =>
+            {
+                doc.SwaggerDoc("v1", new OpenApiInfo { Title = "Social Media Api", Version = "v1" });
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                doc.IncludeXmlComments(xmlPath);
+            });
             
             //Es un filtro ... valida los modelos de manera global en la app... para cada request
             services.AddMvc(options =>
@@ -97,6 +109,14 @@ namespace SocialMediaAPI
             }
 
             app.UseHttpsRedirection();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(options => 
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Social Media API V1");
+                options.RoutePrefix = string.Empty;
+            });
 
             app.UseRouting();
 
