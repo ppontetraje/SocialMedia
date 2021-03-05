@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SocialMedia.Core.Data;
+using SocialMedia.Infraestructure.Data;
 using SocialMedia.Core.Interfaces;
 using SocialMedia.Core.Services;
 using SocialMedia.Infraestructure.Filters;
@@ -61,6 +61,7 @@ namespace SocialMediaAPI
 
 
             services.AddTransient<IPostService, PostService>();
+            services.AddTransient<ISecurityService, SecurityService>();
             // Se indica que la interface ha sido implementada en la clase postrepository
             // Con esta practica se hace más mantenible la aplicacion ya que puedes cambair de repositorio sin tener que cambiar el codigo
             // eliminar services.AddTransient<IPostRepository, PostRepository>();
@@ -136,9 +137,9 @@ namespace SocialMediaAPI
 
             app.UseSwaggerUI(options => 
             {
-                //localhost options.SwaggerEndpoint("../swagger/v1/swagger.json", "Social Media API V1");
-                //localhost //options.RoutePrefix = string.Empty;
-                //Configuración Para Azure
+                //localhost IIS options.SwaggerEndpoint("../swagger/v1/swagger.json", "Social Media API V1");
+                //localhost IIS //options.RoutePrefix = string.Empty;
+                //Configuración Para Azure y localhost sin IIS
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "Social Media API V1");
                 options.RoutePrefix = string.Empty;
             });

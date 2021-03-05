@@ -1,15 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SocialMedia.Core.Data;
 using SocialMedia.Core.Entities;
 using SocialMedia.Core.Interfaces;
-using System;
+using SocialMedia.Infraestructure.Data;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SocialMedia.Infraestructure.Repositories
-{ 
+{
     public class BaseRepository <T> : IRepository <T> where T : BaseEntity
     {
         private readonly SocialMediaContext _context;
