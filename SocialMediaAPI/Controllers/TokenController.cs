@@ -49,9 +49,11 @@ namespace SocialMedia.API.Controllers
         private async Task<(bool, Security)> IsValiduser(UserLogin login)
         {
             var user = await _securityService.GetLoginByCredentials(login);
-            
-            var isValid = _passwordService.Check(user.Password, login.Password);
-
+            var isValid = false;
+            if (user != null)
+            {
+                isValid = _passwordService.Check(user.Password, login.Password);
+            }
             return (isValid, user) ;
         }
         private string GenerateToken(Security security)

@@ -79,13 +79,17 @@ namespace SocialMedia.Core.Services
 
         public async Task<bool> UpdatePost(Post post)
         {
-            _unitOfWork.PostRepository.Update(post);
+            var existinPost = await _unitOfWork.PostRepository.GetById(post.Id);
+            existinPost.Image = post.Image;
+            existinPost.Description = post.Description;
+            _unitOfWork.PostRepository.Update(existinPost); 
             await _unitOfWork.SaveChangesAsync();
             return true;
         }
         public async Task<bool> DeletePost(int id)
         {
             await _unitOfWork.PostRepository.Delete(id);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

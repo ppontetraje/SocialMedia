@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SocialMedia.Infraestructure.Data;
+using SocialMedia.Infraestructure.Extensions;
 using SocialMedia.Core.Interfaces;
 using SocialMedia.Core.Services;
 using SocialMedia.Infraestructure.Filters;
@@ -54,33 +55,9 @@ namespace SocialMediaAPI
                  //options.SuppressModelStateInvalidFilter = true;
              });
 
-            services.Configure<PaginationOptions>(Configuration.GetSection("Pagination"));
-            services.Configure<PasswordOptions>(Configuration.GetSection("PasswordOptions"));
-
-            services.AddDbContext<SocialMediaContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("SocialMedia"))
-            );
-
-
-            services.AddTransient<IPostService, PostService>();
-            services.AddTransient<ISecurityService, SecurityService>();
-            // Se indica que la interface ha sido implementada en la clase postrepository
-            // Con esta practica se hace más mantenible la aplicacion ya que puedes cambair de repositorio sin tener que cambiar el codigo
-            // eliminar services.AddTransient<IPostRepository, PostRepository>();
-            //elimnar  services.AddTransient<IUserRepository, UserRepository>();
-            services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
-            services.AddTransient<IUnitOfWork, UnitOfWork>();
-            services.AddSingleton<IPasswordService, PasswordService>();
-
-
-            //Se maneja una unica instancia en toda la app
-            services.AddSingleton<IUriService>(provider =>
-            {
-                var accesor = provider.GetRequiredService<IHttpContextAccessor>();
-                var request = accesor.HttpContext.Request;
-                var absoluteUri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
-                return new UriService(absoluteUri);
-            });
+            services.AddOptions(Configuration);
+            services.AddDBContexts(Configuration);
+            services.AddServices();
 
             services.AddSwaggerGen(doc =>
             {
