@@ -9,10 +9,14 @@ namespace SocialMedia.Infraestructure.Repositories
     public class SecurityRepository : BaseRepository<Security>, ISecurityRepository
     {
         public SecurityRepository(SocialMediaContext context) : base(context) { }
-
+        /// <summary>
+        /// Only Validation by User not password(it's hashed)
+        /// </summary>
+        /// <param name="login"></param>
+        /// <returns></returns>
         public async Task<Security> GetLoginByCredentials(UserLogin login)
         {
-            return await _entities.FirstOrDefaultAsync(x => x.User == login.User && x.Password == login.Password);
+            return await _entities.FirstOrDefaultAsync(x => x.User == login.User);
         }
     }
 }

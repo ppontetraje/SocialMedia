@@ -22,6 +22,7 @@ using System.IO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using SocialMedia.Infraestructure.Options;
 
 namespace SocialMediaAPI
 {
@@ -54,6 +55,7 @@ namespace SocialMediaAPI
              });
 
             services.Configure<PaginationOptions>(Configuration.GetSection("Pagination"));
+            services.Configure<PasswordOptions>(Configuration.GetSection("PasswordOptions"));
 
             services.AddDbContext<SocialMediaContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("SocialMedia"))
@@ -68,6 +70,8 @@ namespace SocialMediaAPI
             //elimnar  services.AddTransient<IUserRepository, UserRepository>();
             services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddSingleton<IPasswordService, PasswordService>();
+
 
             //Se maneja una unica instancia en toda la app
             services.AddSingleton<IUriService>(provider =>
